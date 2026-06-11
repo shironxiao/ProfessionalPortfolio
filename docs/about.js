@@ -96,7 +96,6 @@ function renderGitHubSection(profile, languages) {
                 <p class="gh-bio">${profile.bio || 'Developer'}</p>
                 
                 <div class="gh-details">
-                    ${profile.location ? `<span><i class="fas fa-map-marker-alt"></i> ${profile.location}</span>` : ''}
                     <span><i class="fas fa-calendar-alt"></i> Joined ${joinedDate}</span>
                 </div>
 
