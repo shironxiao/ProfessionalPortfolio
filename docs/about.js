@@ -2,12 +2,32 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchGitHubData();
 });
 
+// Fallback data so the page always renders, even when GitHub API is rate-limited
+const FALLBACK_PROFILE = {
+    login: 'shironxiao',
+    name: 'Ronald Sevilla',
+    avatar_url: 'https://avatars.githubusercontent.com/u/171462414?v=4',
+    bio: 'Full Stack Developer | IT Student',
+    html_url: 'https://github.com/shironxiao',
+    public_repos: 5,
+    followers: 0,
+    following: 0,
+    created_at: '2024-07-01T00:00:00Z'
+};
+
+const FALLBACK_LANGUAGES = [
+    { name: 'HTML', count: 4, percentage: '36.4' },
+    { name: 'CSS', count: 3, percentage: '27.3' },
+    { name: 'JavaScript', count: 2, percentage: '18.2' },
+    { name: 'PHP', count: 1, percentage: '9.1' },
+    { name: 'Java', count: 1, percentage: '9.1' }
+];
+
 async function fetchGitHubData() {
     const container = document.getElementById('github-content');
     const username = 'shironxiao';
 
     try {
-        
         const [profileRes, reposRes] = await Promise.all([
             fetch(`https://api.github.com/users/${username}`),
             fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`)
@@ -22,17 +42,11 @@ async function fetchGitHubData() {
         }
 
         const languages = calculateTopLanguages(repos);
-        renderGitHubSection(profile, languages);
+        renderGitHubSection(profile, languages, false);
 
     } catch (error) {
-        console.error('GitHub Fetch Error:', error);
-        container.innerHTML = `
-            <div style="text-align: center; color: var(--muted-text); padding: 2rem;">
-                <p>Failed to load GitHub data.</p>
-                <p style="font-size: 0.8rem;">${error.message}</p>
-                <button class="btn btn-color-2" onclick="location.reload()" style="margin-top:1rem;">Retry</button>
-            </div>
-        `;
+        console.warn('GitHub API unavailable, using fallback data:', error.message);
+        renderGitHubSection(FALLBACK_PROFILE, FALLBACK_LANGUAGES, true);
     }
 }
 
@@ -56,9 +70,9 @@ function calculateTopLanguages(repos) {
     return langArray.slice(0, 5);
 }
 
-function renderGitHubSection(profile, languages) {
+function renderGitHubSection(profile, languages, isFallback) {
     const container = document.getElementById('github-content');
-    
+
     const joinedDate = new Date(profile.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long'
@@ -86,6 +100,12 @@ function renderGitHubSection(profile, languages) {
         `;
     }
 
+    const fallbackNotice = isFallback
+        ? `<p style="font-size: 0.75rem; color: var(--muted-text); text-align: center; margin-top: 1.5rem; opacity: 0.7;">
+             <i class="fas fa-info-circle"></i> Showing cached data &mdash; live stats update when available.
+           </p>`
+        : '';
+
     const html = `
         <div class="github-profile-header">
             <div class="gh-avatar-wrapper">
@@ -94,7 +114,7 @@ function renderGitHubSection(profile, languages) {
             <div class="gh-profile-info">
                 <h3>${profile.name || profile.login}</h3>
                 <p class="gh-bio">${profile.bio || 'Developer'}</p>
-                
+
                 <div class="gh-details">
                     <span><i class="fas fa-calendar-alt"></i> Joined ${joinedDate}</span>
                 </div>
@@ -121,10 +141,11 @@ function renderGitHubSection(profile, languages) {
                 </div>
             </div>
         </div>
-        
+
         ${languages.length > 0 ? '<hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">' : ''}
-        
+
         ${languagesHTML}
+        ${fallbackNotice}
     `;
 
     container.innerHTML = html;
