@@ -84,6 +84,36 @@
         </div>
       </div>
 
+      <div class="project-panel">
+        <div class="project-image" onclick="openImageFullscreen(this.querySelector('img'))">
+          <img src="./assets/StreetAssist.png" alt="Street Assist Screenshot"
+            onerror="this.src='https://placehold.co/600x400/FFFFFF/1F2937?text=Street+Assist'; this.onerror=null;">
+          <div class="image-overlay">
+            <i class="fas fa-expand"></i>
+            <span>Click to enlarge</span>
+          </div>
+        </div>
+        <div class="project-content">
+          <h2 class="project-title">Street Assist</h2>
+          <p class="project-description">
+            A web application built to help users report and track street-related issues in their community.
+            The platform streamlines the process of logging concerns, enabling better communication and faster
+            resolution for local infrastructure problems.
+          </p>
+          <div class="tech-stack">
+            <div class="tech-item">
+              <i class="fas fa-code"></i>
+              <span>React / Vite / CSS</span>
+            </div>
+          </div>
+          <div class="project-buttons-container">
+            <button class="project-btn"
+              onclick="window.open('https://integ-web-app-ilwz.vercel.app/', '_blank')">
+              Live Demo <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
 
     </div>
   </section>
