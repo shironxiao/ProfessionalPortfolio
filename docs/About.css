@@ -770,6 +770,38 @@ footer {
   color: var(--muted-text);
 }
 
+.gh-contributions {
+  margin-top: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.gh-contributions h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.gh-contrib-calendar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.gh-contrib-calendar img {
+  width: 100%;
+  max-width: 800px;
+  min-width: 600px;
+  height: auto;
+}
+
 .gh-languages {
   margin-top: 2rem;
   text-align: left;

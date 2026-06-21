@@ -142,6 +142,15 @@ function renderGitHubSection(profile, languages, isFallback) {
             </div>
         </div>
 
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+        <div class="gh-contributions">
+            <h3>GitHub Contributions</h3>
+            <div class="gh-contrib-calendar">
+                <img src="https://ghchart.rshah.org/3B82F6/shironxiao" alt="shironxiao's GitHub Contributions Calendar" onerror="this.style.display='none';">
+            </div>
+        </div>
+
         ${languages.length > 0 ? '<hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">' : ''}
 
         ${languagesHTML}
