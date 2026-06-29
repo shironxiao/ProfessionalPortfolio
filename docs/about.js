@@ -106,6 +106,13 @@ function renderGitHubSection(profile, languages, isFallback) {
            </p>`
         : '';
 
+    const createdYear = new Date(profile.created_at || '2024-07-01').getFullYear();
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear; y >= createdYear; y--) {
+        years.push(y);
+    }
+
     const html = `
         <div class="github-profile-header">
             <div class="gh-avatar-wrapper">
@@ -145,9 +152,15 @@ function renderGitHubSection(profile, languages, isFallback) {
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
 
         <div class="gh-contributions">
-            <h3>GitHub Contributions</h3>
+            <div class="gh-contrib-header">
+                <h3>GitHub Contributions</h3>
+                <div class="gh-year-buttons">
+                    <button class="gh-year-btn active" onclick="switchContribYear('last', this)">Last Year</button>
+                    ${years.map(y => `<button class="gh-year-btn" onclick="switchContribYear('${y}', this)">${y}</button>`).join('')}
+                </div>
+            </div>
             <div class="gh-contrib-calendar">
-                <img src="https://ghchart.rshah.org/3B82F6/shironxiao" alt="shironxiao's GitHub Contributions Calendar" onerror="this.style.display='none';">
+                <img id="gh-contrib-img" src="https://ghchart.rshah.org/3B82F6/shironxiao" alt="shironxiao's GitHub Contributions Calendar" onerror="this.style.display='none';">
             </div>
         </div>
 
@@ -159,6 +172,21 @@ function renderGitHubSection(profile, languages, isFallback) {
 
     container.innerHTML = html;
 }
+
+window.switchContribYear = function(year, btn) {
+    document.querySelectorAll('.gh-year-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    const img = document.getElementById('gh-contrib-img');
+    if (img) {
+        img.style.display = 'block';
+        if (year === 'last') {
+            img.src = `https://ghchart.rshah.org/3B82F6/shironxiao`;
+        } else {
+            img.src = `https://ghchart.rshah.org/3B82F6/${year}shironxiao`;
+        }
+    }
+};
 
 function getLanguageColor(language) {
     const colors = {

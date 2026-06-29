@@ -776,12 +776,50 @@ footer {
   width: 100%;
 }
 
-.gh-contributions h3 {
+.gh-contrib-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.gh-contrib-header h3 {
+  margin-bottom: 0;
   color: var(--text);
   font-size: 1.5rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.5rem;
+}
+
+.gh-year-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.gh-year-btn {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gh-year-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gh-year-btn.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
 }
 
 .gh-contrib-calendar {
