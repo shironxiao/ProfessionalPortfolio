@@ -887,6 +887,25 @@ footer {
   transition: width 1s ease-in-out;
 }
 
+.gh-visit-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: auto !important;
+  min-width: 180px;
+  height: auto;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem !important;
+  line-height: 1;
+}
+
+.gh-visit-btn i {
+  font-size: 1.2rem;
+}
+
 @media screen and (max-width: 768px) {
   .github-profile-header {
     flex-direction: column;

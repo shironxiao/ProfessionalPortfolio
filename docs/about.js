@@ -142,9 +142,9 @@ function renderGitHubSection(profile, languages, isFallback) {
                 </div>
 
                 <div class="gh-actions">
-                     <button class="btn btn-color-2" onclick="window.open('${profile.html_url}', '_blank')">
-                        Visit GitHub Profile
-                     </button>
+                     <a href="${profile.html_url}" target="_blank" class="btn btn-color-2 gh-visit-btn">
+                        <i class="fab fa-github"></i> Visit GitHub Profile
+                     </a>
                 </div>
             </div>
         </div>
