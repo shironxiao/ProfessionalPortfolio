@@ -160,7 +160,7 @@ function renderGitHubSection(profile, languages, isFallback) {
                 </div>
             </div>
             <div class="gh-contrib-calendar">
-                <img id="gh-contrib-img" src="https://ghchart.rshah.org/3B82F6/shironxiao" alt="shironxiao's GitHub Contributions Calendar" onerror="this.style.display='none';">
+                <img id="gh-contrib-img" src="https://ghchart.rshah.org/3b82f6/shironxiao" alt="shironxiao's GitHub Contributions Calendar">
             </div>
         </div>
 
@@ -179,11 +179,10 @@ window.switchContribYear = function(year, btn) {
 
     const img = document.getElementById('gh-contrib-img');
     if (img) {
-        img.style.display = 'block';
         if (year === 'last') {
-            img.src = `https://ghchart.rshah.org/3B82F6/shironxiao`;
+            img.src = `https://ghchart.rshah.org/3b82f6/shironxiao`;
         } else {
-            img.src = `https://ghchart.rshah.org/3B82F6/${year}shironxiao`;
+            img.src = `https://ghchart.rshah.org/3b82f6/${year}shironxiao`;
         }
     }
 };
