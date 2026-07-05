@@ -159,8 +159,8 @@ function renderGitHubSection(profile, languages, isFallback) {
                     ${years.map(y => `<button class="gh-year-btn" onclick="switchContribYear('${y}', this)">${y}</button>`).join('')}
                 </div>
             </div>
-            <div class="gh-contrib-calendar">
-                <img id="gh-contrib-img" src="https://ghchart.rshah.org/3b82f6/shironxiao" alt="shironxiao's GitHub Contributions Calendar">
+            <div class="gh-contrib-calendar" id="gh-contrib-calendar">
+                <div class="gh-contrib-loading"><i class="fas fa-spinner fa-spin"></i> Loading contributions...</div>
             </div>
         </div>
 
@@ -171,20 +171,162 @@ function renderGitHubSection(profile, languages, isFallback) {
     `;
 
     container.innerHTML = html;
+
+    // Load the default "last year" calendar after rendering
+    loadContribCalendar('last');
+}
+
+// Fetch contribution data and render the grid
+async function loadContribCalendar(year) {
+    const calendarEl = document.getElementById('gh-contrib-calendar');
+    if (!calendarEl) return;
+
+    calendarEl.innerHTML = `<div class="gh-contrib-loading"><i class="fas fa-spinner fa-spin"></i> Loading contributions...</div>`;
+
+    const username = 'shironxiao';
+    const url = year === 'last'
+        ? `https://github-contributions-api.jogruber.de/v4/${username}?y=last`
+        : `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`;
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        // data.contributions is an array of { date, count, level }
+        calendarEl.innerHTML = renderContribGrid(data.contributions, data.total, year);
+    } catch (e) {
+        calendarEl.innerHTML = `<p style="text-align:center; color: var(--muted-text); padding: 2rem;">Unable to load contribution data.</p>`;
+    }
+}
+
+// Build the GitHub-style contribution grid
+function renderContribGrid(contributions, totals, year) {
+    if (!contributions || contributions.length === 0) {
+        return `<p style="text-align:center; color: var(--muted-text); padding: 2rem;">No contribution data available.</p>`;
+    }
+
+    // Get total for selected year
+    const totalCount = year === 'last'
+        ? (totals && totals['lastYear'] !== undefined ? totals['lastYear'] : contributions.reduce((s, d) => s + d.count, 0))
+        : (totals && totals[year] !== undefined ? totals[year] : contributions.reduce((s, d) => s + d.count, 0));
+
+    // Group by week (Sunday-start columns)
+    const weeks = [];
+    let week = [];
+
+    // Pad the first week with empty days if it doesn't start on Sunday
+    const firstDay = new Date(contributions[0].date);
+    const startPad = firstDay.getDay(); // 0=Sun, 1=Mon...
+    for (let p = 0; p < startPad; p++) {
+        week.push(null);
+    }
+
+    contributions.forEach(day => {
+        week.push(day);
+        if (week.length === 7) {
+            weeks.push(week);
+            week = [];
+        }
+    });
+    if (week.length > 0) {
+        weeks.push(week);
+    }
+
+    // Month labels
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthLabels = [];
+    let lastMonth = -1;
+    weeks.forEach((w, wi) => {
+        const firstReal = w.find(d => d !== null);
+        if (firstReal) {
+            const m = new Date(firstReal.date).getMonth();
+            if (m !== lastMonth) {
+                monthLabels.push({ col: wi, label: monthNames[m] });
+                lastMonth = m;
+            }
+        }
+    });
+
+    // Contribution level colors (matching GitHub's green palette)
+    const levelColors = [
+        'var(--contrib-0)',
+        'var(--contrib-1)',
+        'var(--contrib-2)',
+        'var(--contrib-3)',
+        'var(--contrib-4)'
+    ];
+
+    // Build the SVG-style grid as HTML
+    const cellSize = 11;
+    const gap = 3;
+    const totalCols = weeks.length;
+    const gridWidth = totalCols * (cellSize + gap);
+    const gridHeight = 7 * (cellSize + gap);
+    const labelH = 18;
+
+    // Month label row
+    let monthHTML = `<div class="gh-month-labels" style="width:${gridWidth}px">`;
+    monthLabels.forEach(ml => {
+        const leftPos = ml.col * (cellSize + gap);
+        monthHTML += `<span style="left:${leftPos}px">${ml.label}</span>`;
+    });
+    monthHTML += `</div>`;
+
+    // Day grid
+    let gridHTML = `<div class="gh-grid" style="width:${gridWidth}px; height:${gridHeight}px;">`;
+    weeks.forEach(w => {
+        gridHTML += `<div class="gh-col">`;
+        w.forEach(day => {
+            if (day === null) {
+                gridHTML += `<div class="gh-cell gh-cell-empty"></div>`;
+            } else {
+                const color = levelColors[day.level] || levelColors[0];
+                const tooltip = `${day.count} contribution${day.count !== 1 ? 's' : ''} on ${day.date}`;
+                gridHTML += `<div class="gh-cell" style="background:${color}" title="${tooltip}" data-date="${day.date}" data-count="${day.count}"></div>`;
+            }
+        });
+        gridHTML += `</div>`;
+    });
+    gridHTML += `</div>`;
+
+    // Day of week labels
+    const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let dayLabelHTML = `<div class="gh-day-labels">`;
+    dayLabels.forEach((d, i) => {
+        // Only show Mon, Wed, Fri to match GitHub style
+        const visible = [1, 3, 5].includes(i);
+        dayLabelHTML += `<span style="opacity:${visible ? 1 : 0}">${d}</span>`;
+    });
+    dayLabelHTML += `</div>`;
+
+    const labelYear = year === 'last' ? 'the last year' : year;
+
+    return `
+        <div class="gh-contrib-total">${totalCount.toLocaleString()} contributions in ${labelYear}</div>
+        <div class="gh-contrib-wrapper">
+            ${dayLabelHTML}
+            <div class="gh-contrib-right">
+                ${monthHTML}
+                ${gridHTML}
+            </div>
+        </div>
+        <div class="gh-contrib-legend">
+            <span>Less</span>
+            <div class="gh-cell" style="background:var(--contrib-0)"></div>
+            <div class="gh-cell" style="background:var(--contrib-1)"></div>
+            <div class="gh-cell" style="background:var(--contrib-2)"></div>
+            <div class="gh-cell" style="background:var(--contrib-3)"></div>
+            <div class="gh-cell" style="background:var(--contrib-4)"></div>
+            <span>More</span>
+        </div>
+    `;
 }
 
 window.switchContribYear = function(year, btn) {
     document.querySelectorAll('.gh-year-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
-
-    const img = document.getElementById('gh-contrib-img');
-    if (img) {
-        if (year === 'last') {
-            img.src = `https://ghchart.rshah.org/3b82f6/shironxiao`;
-        } else {
-            img.src = `https://ghchart.rshah.org/3b82f6/${year}shironxiao`;
-        }
-    }
+    loadContribCalendar(year);
 };
 
 function getLanguageColor(language) {
